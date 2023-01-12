@@ -466,6 +466,12 @@ public class TestProgram {
 
 		System.out.println();
 	}
+	
+	public static void test9_LatestActivity() {
+		System.out.println("Running test 9, latest activity ...");
+		
+		helpDesk.getLatestActivity();
+	}
 
 	public static void main(String[] args) {
 		runSimulation();
@@ -477,5 +483,6 @@ public class TestProgram {
 		test6_TextSearch();
 		test7_ReopenedTickets();
 		test8_Synonyms();
+		test9_LatestActivity();
 	}
 }

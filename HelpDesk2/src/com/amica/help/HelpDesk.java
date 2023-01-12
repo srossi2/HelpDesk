@@ -1,7 +1,9 @@
 package com.amica.help;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -123,5 +125,27 @@ public class HelpDesk implements HelpDeskAPI {
 
 	public Stream<Ticket> getTicketsByText(String text) {
 		return tickets.stream().filter(t -> t.includesText(text));
+	}
+	
+	// Method to return a stream of the 10 most recent events system-wide
+	public Stream<Event> getLatestActivity() {
+		List<Ticket> allTickets = getTickets().collect(Collectors.toList());
+		List<Event> allEvents = new ArrayList<Event>();
+		
+		for (int i = 0; i < allTickets.size(); ++i) {
+			List<Event> ticketEvents = allTickets.get(i).getHistory().collect(Collectors.toList());
+			
+			for (int j = 0; j < ticketEvents.size(); ++j) {
+				allEvents.add(ticketEvents.get(j));
+			}
+		}
+		
+		Stream<Event> events = allEvents.stream()
+				.sorted((e2, e1)->Long.compare(e1.getTimestamp(), e2.getTimestamp()))
+				.limit(10);
+		
+		events.forEach(System.out::println);
+		
+		return events;
 	}
 }
