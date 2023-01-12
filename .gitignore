@@ -23,5 +23,9 @@
 hs_err_pid*
 
 #IntelliJ files
-.idea*
+.idea/
 *.iml
+
+#Other folders
+bin/
+output/
