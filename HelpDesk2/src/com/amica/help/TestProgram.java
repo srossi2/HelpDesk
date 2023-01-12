@@ -15,17 +15,13 @@ public class TestProgram {
 	public static void addNote(int ticketID, String note) {
 		helpDesk.getTicketByID(ticketID).addNote(note);
 	}
-	
-	// This is a helper to simplify maintenance of the test code.
-	// For now "suspend" is just addigng a note; it will be more specific later.
+
 	public static void suspend(int ticketID, String reason) {
-		addNote(ticketID, reason);
+		helpDesk.getTicketByID(ticketID).suspend(reason);
 	}
-	
-	// This is a helper to simplify maintenance of the test code.
-	// For now "resume" is just addigng a note; it will be more specific later.
+
 	public static void resume(int ticketID, String reason) {
-		addNote(ticketID, reason);
+		helpDesk.getTicketByID(ticketID).resume(reason);
 	}
 	
 	public static void resolve(int ticketID, String reason) {
@@ -96,16 +92,18 @@ public class TestProgram {
 		helpDesk.createTicket("A15711", "Laptop won't start up.", Priority.URGENT);
 		Clock.setTime("11/2/21 8:12");
 		helpDesk.addTags(7, "laptop");
+		resume(6, "Received approval; added permission.");
 		Clock.setTime("11/2/21 8:45");
-		resolve(6, "Received approval; added permission.");
+		resolve(6, "Issue resolved");
 		Clock.setTime("11/2/21 8:52");
 		helpDesk.createTicket("A20271", "Can't login.", Priority.HIGH);
 		Clock.setTime("11/2/21 8:53");
 		helpDesk.addTags(8, "remoting");
 		Clock.setTime("11/2/21 10:19");
 		helpDesk.createTicket("T13370", "Need to reset MobilePass.", Priority.HIGH);
+		resume(3, "Received approval; added permission.");
 		Clock.setTime("11/2/21 10:20");
-		resolve(3, "Received approval; added permission.");
+		resolve(3, "Issue resolved");
 		Clock.setTime("11/2/21 10:21");
 		helpDesk.addTags(9, "vpn");
 		Clock.setTime("11/2/21 10:22");
@@ -191,8 +189,8 @@ public class TestProgram {
 
 		assertEqual(helpDesk.getTicketByID(1).getStatus(), Status.RESOLVED, 
 				"Ticket 1 should be RESOLVED, was %s.");
-		assertEqual(helpDesk.getTicketByID(12).getStatus(), Status.ASSIGNED, 
-				"Ticket 12 should be ASSIGNED, was %s.");
+		assertEqual(helpDesk.getTicketByID(12).getStatus(), Status.WAITING,
+				"Ticket 12 should be WAITING, was %s.");
 
 		assertCount(helpDesk.getTicketsByStatus(Status.CREATED), 0,
 				"There shuldn't be any tickets in the CREATED state, was %d.");
@@ -242,10 +240,17 @@ public class TestProgram {
 		Event note7 = history.next();
 		assertEqual(Clock.format(note7.getTimestamp()), "11/1/21 14:14",
 				"Ticket 2's 2nd note should be stamped 14:14, was %s.");
-		assertTrue(note7.getNewStatus() == null,
-				"Ticket 2's second note status should be null, was " + note7.getNewStatus() + ".");
+		assertTrue(note7.getNewStatus() == Status.ASSIGNED,
+				"Ticket 2's second note status should be ASSIGNED, was " + note7.getNewStatus() + ".");
 		assertEqual(note7.getNote(), "User: Yes, I can connect from other desktop machines at Amica.",
 				"Ticket 2's 2nd note is wrong: %s.");
+
+		history = helpDesk.getTicketByID(9).getHistory().iterator();
+		history.next();
+		history.next();
+		Event note9Status = history.next();
+		assertTrue(note9Status.getNewStatus() == Status.WAITING,
+				"Ticket 9's third note status should be WAITING, was " + note9Status.getNewStatus() + ".");
 
 		System.out.println();
 	}
