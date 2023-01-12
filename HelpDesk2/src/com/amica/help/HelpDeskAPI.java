@@ -94,4 +94,6 @@ public interface HelpDeskAPI {
 	 * include the given text.
 	 */
 	public Stream<Ticket> getTicketsByText(String text);
+	
+	public Stream<Event> getLatestActivity();
 }
